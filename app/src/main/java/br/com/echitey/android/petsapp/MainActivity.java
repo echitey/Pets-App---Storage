@@ -4,12 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import br.com.echitey.android.petsapp.data.PetContract;
+import br.com.echitey.android.petsapp.data.PetDbHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        displayDatabaseInfo();
     }
 
     @Override
@@ -50,5 +58,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void displayDatabaseInfo(){
+        PetDbHelper helper = new PetDbHelper(this);
+
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM "+ PetContract.PetEntry.TABLE_NAME, null);
+
+        try{
+            TextView displayView = findViewById(R.id.text_view_pet);
+            displayView.setText("Number of Pets id Database: "+cursor.getCount());
+        } finally {
+            cursor.close();
+        }
+
     }
 }
