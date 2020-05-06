@@ -1,5 +1,7 @@
 package br.com.echitey.android.petsapp;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -9,11 +11,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
+
+import br.com.echitey.android.petsapp.data.PetContract.PetEntry;
+import br.com.echitey.android.petsapp.data.PetDbHelper;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -92,13 +98,49 @@ public class EditorActivity extends AppCompatActivity {
         return true;
     }
 
+    private void insertPet(){
+        // Read from input fields
+        // Use trim to eliminate leading or trailing white space
+        String nameString = mNameEditText.getText().toString().trim();
+        String breedString = mBreedEditText.getText().toString().trim();
+        String weightString = mWeightEditText.getText().toString().trim();
+        int weight = Integer.parseInt(weightString);
+
+        // Create database helper
+        PetDbHelper mDbHelper = new PetDbHelper(this);
+
+        // Gets the database in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a ContentValues object where column names are the keys,
+        // and pet attributes from the editor are the values.
+        ContentValues values = new ContentValues();
+        values.put(PetEntry.COLUMN_PET_NAME, nameString);
+        values.put(PetEntry.COLUMN_PET_BREED, breedString);
+        values.put(PetEntry.COLUMN_PET_GENDER, mGender);
+        values.put(PetEntry.COLUMN_PET_WEIGHT, weight);
+
+        // Insert a new row for pet in the database, returning the ID of that new row.
+        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+
+        // Show a toast message depending on whether or not the insertion was successful
+        if (newRowId == -1) {
+            // If the row ID is -1, then there was an error with insertion.
+            Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
+        } else {
+            // Otherwise, the insertion was successful and we can display a toast with the row ID.
+            Toast.makeText(this, "Pet saved with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                insertPet();
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
