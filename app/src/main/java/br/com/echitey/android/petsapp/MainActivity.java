@@ -18,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import br.com.echitey.android.petsapp.data.PetContract;
 import br.com.echitey.android.petsapp.data.PetContract.PetEntry;
 import br.com.echitey.android.petsapp.data.PetDbHelper;
+import br.com.echitey.android.petsapp.data.PetProvider;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     private void displayDatabaseInfo(){
 
         // Create and/or open a database to read from it
-        SQLiteDatabase db = helper.getReadableDatabase();
+        //SQLiteDatabase db = helper.getReadableDatabase();
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_WEIGHT };
 
         // Perform a query on the pets table
-        Cursor cursor = db.query(
+        /**Cursor cursor = db.query(
                 PetEntry.TABLE_NAME,   // The table to query
                 projection,            // The columns to return
                 null,                  // The columns for the WHERE clause
@@ -118,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
                 null,                  // Don't group the rows
                 null,                  // Don't filter by row groups
                 null);                   // The sort order
+         **/
+
+        Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
 
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
