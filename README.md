@@ -15,3 +15,4 @@ Manages updating the database schema if version changes
 -   Create a Cursor Loader that will be used to retrieve the date using the Content Provider and allow live update
 -   Create the Provider Class
 -   Define the URI Matcher pattern
+-   Create DB Operation + Validation methods in Provider
