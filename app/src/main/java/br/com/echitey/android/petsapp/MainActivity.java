@@ -1,7 +1,11 @@
 package br.com.echitey.android.petsapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -12,6 +16,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,10 +27,14 @@ import br.com.echitey.android.petsapp.data.PetContract.PetEntry;
 import br.com.echitey.android.petsapp.data.PetDbHelper;
 import br.com.echitey.android.petsapp.data.PetProvider;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /** Database helper that will provide us access to the database */
     private PetDbHelper helper;
+
+    private static int PET_LOADER = 0;
+
+    PetCursorAdapter petCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +54,19 @@ public class MainActivity extends AppCompatActivity {
 
         helper = new PetDbHelper(this);
 
-        //displayDatabaseInfo();
-    }
+        // Find the ListView which will be populated with the pet data
+        ListView petListView = (ListView) findViewById(R.id.list);
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
+        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+        View emptyView = findViewById(R.id.empty_view);
+        petListView.setEmptyView(emptyView);
+
+        petCursorAdapter = new PetCursorAdapter(this, null);
+        petListView.setAdapter(petCursorAdapter);
+
+        LoaderManager.getInstance(this).initLoader(PET_LOADER, null, this);
+
+
     }
 
     @Override
@@ -131,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
         // Find the ListView which will be populated with the pet data
         ListView petListView = (ListView) findViewById(R.id.list);
 
+        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+        View emptyView = findViewById(R.id.empty_view);
+        petListView.setEmptyView(emptyView);
+
         // Setup an Adapter to create a list item for each row of pet data in the Cursor.
         PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
 
@@ -138,5 +157,33 @@ public class MainActivity extends AppCompatActivity {
         petListView.setAdapter(adapter);
 
 
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+
+        String [] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED
+        };
+
+        return new CursorLoader(this,
+                PetEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        petCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        petCursorAdapter.swapCursor(null);
     }
 }

@@ -16,3 +16,5 @@ Manages updating the database schema if version changes
 -   Create the Provider Class
 -   Define the URI Matcher pattern
 -   Create DB Operation + Validation methods in Provider
+-   Create CursorAdapter and ListView Layout
+-   Implementing a CursorLoader(uses background thread, fit ContentProvider, automatic refresh)
